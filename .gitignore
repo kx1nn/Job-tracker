@@ -1,0 +1,19 @@
+# ===== 个人数据（隐私，绝不提交） =====
+岗位数据库/
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ===== 编辑器 / 系统 =====
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ===== 测试截图 =====
+*.png
+
+xhs_images/
