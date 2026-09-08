@@ -1,0 +1,2 @@
+# Windows 批处理：保持 CRLF 行尾，避免双击时 cmd 解析失败
+*.bat -text
