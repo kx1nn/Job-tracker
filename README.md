@@ -58,6 +58,26 @@ python3 app/server.py     # macOS / Linux
 
 > macOS / Linux：`python3 app/server.py` 启动，`Ctrl+C` 停止。
 
+## 🔄 如何更新
+
+有新版本时这样升级（**你的数据不会丢**）：
+
+### 方式一：重新下载 ZIP（双击启动用户）
+
+1. 回到仓库页 <https://github.com/kx1nn/Job-tracker> → 绿色 **Code** 按钮 → **Download ZIP**
+2. 解压到**新文件夹**（例如 `job-tracker-v2`），不要直接覆盖旧文件夹
+3. **关键一步**：把旧文件夹里的 `岗位数据库` 整个文件夹复制到新文件夹里（里面是你全部的数据）
+4. 双击新文件夹里的 `start.bat`，数据自动带过来，旧文件夹可删
+
+### 方式二：git 用户
+
+```bash
+cd job-tracker
+git pull
+```
+
+> 💡 数据只存在本机 `岗位数据库/看板数据.json` 这一个文件。建议重要数据定期手动备份一份（复制到网盘/U盘）。
+
 ## 🤖 CLI：用 AI 一键录入岗位
 
 CLI 读取任意 JD 文本，调用你配置的 **OpenAI 兼容接口**（OpenAI / DeepSeek / 豆包 / 通义等）提取结构化字段，写入看板数据。
