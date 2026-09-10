@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Local kanban server.
 
@@ -17,8 +17,9 @@ import webbrowser
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+import subprocess
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 # 兼容 pythonw.exe（无控制台窗口）运行：stdout/stderr 为 None 时写入系统空设备
 if sys.stdout is None:
@@ -187,6 +188,13 @@ class KanbanHandler(SimpleHTTPRequestHandler):
     def log_message(self, format: str, *args: Any) -> None:
         return
 
+    def guess_type(self, path: str) -> str:
+        if path.endswith(".md"):
+            return "text/markdown; charset=utf-8"
+        if path.endswith((".txt", ".csv")):
+            return "text/plain; charset=utf-8"
+        return super().guess_type(path)
+
     def _send_json(self, payload: Any, status: int = HTTPStatus.OK) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status)
@@ -218,10 +226,32 @@ class KanbanHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
+    def _open_folder(self) -> None:
+        qs = parse_qs(urlparse(self.path).query)
+        rel = (qs.get("rel") or [""])[0].strip()
+        if not rel:
+            self._send_json({"ok": False, "error": "missing rel"}, HTTPStatus.BAD_REQUEST)
+            return
+        base = BASE_DIR.resolve()
+        try:
+            target = (base / rel).resolve()
+            target.relative_to(base)
+        except ValueError:
+            self._send_json({"ok": False, "error": "forbidden"}, HTTPStatus.FORBIDDEN)
+            return
+        try:
+            os.startfile(str(target))
+            self._send_json({"ok": True})
+        except Exception as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
     def do_GET(self) -> None:
         path = urlparse(self.path).path
         if path == "/api/health":
             self._send_json({"ok": True})
+            return
+        if path == "/api/open-folder":
+            self._open_folder()
             return
         if path == "/api/data":
             self._send_json(read_data())
